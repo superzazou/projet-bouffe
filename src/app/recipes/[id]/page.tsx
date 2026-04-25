@@ -42,9 +42,15 @@ export default async function RecipeDetailPage({
       </header>
 
       <main className="mx-auto max-w-2xl px-4 py-8">
-        <div className="mb-6">
+        <div className="flex items-center justify-between mb-6">
           <Link href="/recipes" className="text-sm text-stone-500 hover:text-stone-800">
             ← Mes recettes
+          </Link>
+          <Link
+            href={`/recipes/${recipe.id}/edit`}
+            className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-700 hover:border-stone-500 transition-colors"
+          >
+            Modifier
           </Link>
         </div>
 
