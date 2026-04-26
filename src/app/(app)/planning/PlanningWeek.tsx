@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { MealPlan, MealType } from "@/lib/types";
 import RecipeCombobox from "@/components/RecipeCombobox";
+import { createShoppingListFromPlanning } from "../shopping-lists/actions";
 
 type Recipe = { id: string; title: string };
 
@@ -45,10 +47,34 @@ export default function PlanningWeek({ initialMealPlans, recipes, today }: Props
   const [weekOffset, setWeekOffset] = useState(0);
   const [mealPlans, setMealPlans] = useState<MealPlan[]>(initialMealPlans);
   const [savingKey, setSavingKey] = useState<string | null>(null);
+  const [showListModal, setShowListModal] = useState(false);
+  const [listTitle, setListTitle] = useState("");
+  const [selectedPlanningRecipeIds, setSelectedPlanningRecipeIds] = useState<string[]>([]);
+  const [creatingList, setCreatingList] = useState(false);
+  const router = useRouter();
 
   const baseMonday = getMondayOf(today);
   const currentMonday = addDays(baseMonday, weekOffset * 7);
   const days = Array.from({ length: 7 }, (_, i) => addDays(currentMonday, i));
+
+  const upcomingRecipes = recipes.filter((r) =>
+    mealPlans.some((mp) => mp.recipe_id === r.id && mp.date >= today)
+  );
+
+  function openListModal() {
+    setListTitle("");
+    setSelectedPlanningRecipeIds(upcomingRecipes.map((r) => r.id));
+    setShowListModal(true);
+  }
+
+  async function handleCreateList() {
+    if (!listTitle.trim() || selectedPlanningRecipeIds.length === 0) return;
+    setCreatingList(true);
+    const list = await createShoppingListFromPlanning(listTitle.trim(), selectedPlanningRecipeIds);
+    setCreatingList(false);
+    setShowListModal(false);
+    router.push(`/shopping-lists/${list.id}`);
+  }
 
   function getMealPlan(date: string, mealType: MealType): MealPlan | undefined {
     return mealPlans.find((mp) => mp.date === date && mp.meal_type === mealType);
@@ -96,6 +122,69 @@ export default function PlanningWeek({ initialMealPlans, recipes, today }: Props
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <button
+          onClick={openListModal}
+          disabled={upcomingRecipes.length === 0}
+          className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-700 hover:border-stone-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          Créer une liste de courses
+        </button>
+      </div>
+
+      {showListModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6 flex flex-col gap-4">
+            <h3 className="text-base font-semibold text-stone-900">Créer une liste de courses</h3>
+            <input
+              autoFocus
+              type="text"
+              value={listTitle}
+              onChange={(e) => setListTitle(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleCreateList(); if (e.key === "Escape") setShowListModal(false); }}
+              placeholder="Nom de la liste..."
+              className="rounded-md border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+            />
+            <div className="flex flex-col gap-1.5 max-h-64 overflow-y-auto">
+              <p className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Recettes à inclure</p>
+              {upcomingRecipes.map((recipe) => {
+                const checked = selectedPlanningRecipeIds.includes(recipe.id);
+                return (
+                  <label key={recipe.id} className="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-stone-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() =>
+                        setSelectedPlanningRecipeIds((ids) =>
+                          checked ? ids.filter((id) => id !== recipe.id) : [...ids, recipe.id]
+                        )
+                      }
+                      className="w-4 h-4 accent-stone-900"
+                    />
+                    <span className="text-sm text-stone-800">{recipe.title}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowListModal(false)}
+                className="rounded-md border border-stone-300 px-4 py-2 text-sm text-stone-700 hover:border-stone-500 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleCreateList}
+                disabled={!listTitle.trim() || selectedPlanningRecipeIds.length === 0 || creatingList}
+                className="rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700 transition-colors disabled:opacity-50"
+              >
+                {creatingList ? "Création..." : `Créer (${selectedPlanningRecipeIds.length})`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-4">
         <button
           onClick={() => setWeekOffset((o) => o - 1)}

@@ -17,8 +17,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ShoppingList, ShoppingItem } from "@/lib/types";
-import { updateShoppingListItems, archiveShoppingList, updateShoppingListTitle } from "../actions";
+import { updateShoppingListItems, archiveShoppingList, updateShoppingListTitle, addRecipesToShoppingList } from "../actions";
 import { useRouter } from "next/navigation";
+
+type Recipe = { id: string; title: string };
 
 function SortableItem({
   item,
@@ -100,12 +102,15 @@ function SortableItem({
   );
 }
 
-export default function ShoppingListDetail({ list: initialList }: { list: ShoppingList }) {
+export default function ShoppingListDetail({ list: initialList, recipes }: { list: ShoppingList; recipes: Recipe[] }) {
   const [list, setList] = useState(initialList);
   const [newLabel, setNewLabel] = useState("");
   const [saving, setSaving] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(initialList.title);
+  const [showRecipePicker, setShowRecipePicker] = useState(false);
+  const [selectedRecipeIds, setSelectedRecipeIds] = useState<string[]>([]);
+  const [addingRecipes, setAddingRecipes] = useState(false);
   const router = useRouter();
   const archived = list.status === "archived";
 
@@ -175,6 +180,16 @@ export default function ShoppingListDetail({ list: initialList }: { list: Shoppi
     router.push("/shopping-lists");
   }
 
+  async function handleAddRecipes() {
+    if (selectedRecipeIds.length === 0) return;
+    setAddingRecipes(true);
+    await addRecipesToShoppingList(list.id, selectedRecipeIds);
+    setAddingRecipes(false);
+    setShowRecipePicker(false);
+    setSelectedRecipeIds([]);
+    router.refresh();
+  }
+
   async function handleTitleSave() {
     if (!titleDraft.trim() || titleDraft === list.title) {
       setTitleDraft(list.title);
@@ -227,22 +242,77 @@ export default function ShoppingListDetail({ list: initialList }: { list: Shoppi
 
       {/* Add item form */}
       {!archived && (
-        <form onSubmit={handleAdd} className="flex gap-2">
-          <input
-            type="text"
-            value={newLabel}
-            onChange={(e) => setNewLabel(e.target.value)}
-            placeholder="Ajouter un élément..."
-            className="flex-1 rounded-md border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
-          />
+        <div className="flex flex-col gap-2">
+          <form onSubmit={handleAdd} className="flex gap-2">
+            <input
+              type="text"
+              value={newLabel}
+              onChange={(e) => setNewLabel(e.target.value)}
+              placeholder="Ajouter un élément..."
+              className="flex-1 rounded-md border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+            />
+            <button
+              type="submit"
+              disabled={!newLabel.trim()}
+              className="rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700 transition-colors disabled:opacity-50"
+            >
+              Ajouter
+            </button>
+          </form>
           <button
-            type="submit"
-            disabled={!newLabel.trim()}
-            className="rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700 transition-colors disabled:opacity-50"
+            onClick={() => setShowRecipePicker(true)}
+            className="self-start text-sm text-stone-500 hover:text-stone-800 underline underline-offset-2 transition-colors"
           >
-            Ajouter
+            + Ajouter des recettes
           </button>
-        </form>
+        </div>
+      )}
+
+      {/* Recipe picker modal */}
+      {showRecipePicker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6 flex flex-col gap-4">
+            <h3 className="text-base font-semibold text-stone-900">Ajouter des recettes</h3>
+            <div className="flex flex-col gap-1.5 max-h-72 overflow-y-auto">
+              {recipes.length === 0 && (
+                <p className="text-sm text-stone-400">Aucune recette disponible.</p>
+              )}
+              {recipes.map((recipe) => {
+                const checked = selectedRecipeIds.includes(recipe.id);
+                return (
+                  <label key={recipe.id} className="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-stone-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() =>
+                        setSelectedRecipeIds((ids) =>
+                          checked ? ids.filter((id) => id !== recipe.id) : [...ids, recipe.id]
+                        )
+                      }
+                      className="w-4 h-4 accent-stone-900"
+                    />
+                    <span className="text-sm text-stone-800">{recipe.title}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => { setShowRecipePicker(false); setSelectedRecipeIds([]); }}
+                className="rounded-md border border-stone-300 px-4 py-2 text-sm text-stone-700 hover:border-stone-500 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleAddRecipes}
+                disabled={selectedRecipeIds.length === 0 || addingRecipes}
+                className="rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700 transition-colors disabled:opacity-50"
+              >
+                {addingRecipes ? "Ajout..." : `Ajouter (${selectedRecipeIds.length})`}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* À acheter */}

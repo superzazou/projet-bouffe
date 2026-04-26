@@ -8,11 +8,10 @@ export default async function ShoppingListPage({ params }: { params: Promise<{ i
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data } = await supabase
-    .from("shopping_lists")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const [{ data }, { data: recipes }] = await Promise.all([
+    supabase.from("shopping_lists").select("*").eq("id", id).single(),
+    supabase.from("recipes").select("id, title").order("title", { ascending: true }),
+  ]);
 
   if (!data) notFound();
 
@@ -28,7 +27,7 @@ export default async function ShoppingListPage({ params }: { params: Promise<{ i
           ← Listes de courses
         </Link>
       </div>
-      <ShoppingListDetail list={list} />
+      <ShoppingListDetail list={list} recipes={recipes ?? []} />
     </div>
   );
 }
