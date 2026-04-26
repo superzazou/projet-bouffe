@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { RecipeWithCounts } from "@/lib/types";
-import LogoutButton from "@/components/LogoutButton";
+import AppLayout from "@/components/AppLayout";
 
 export default async function RecipesPage() {
   const supabase = await createClient();
@@ -28,15 +28,8 @@ export default async function RecipesPage() {
   })[];
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-stone-200 bg-white">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-          <h1 className="text-lg font-semibold tracking-tight">Projet Bouffe</h1>
-          <LogoutButton />
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-4xl px-4 py-8">
+    <AppLayout>
+      <div className="mx-auto max-w-4xl px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Mes recettes</h2>
           <Link
@@ -65,7 +58,7 @@ export default async function RecipesPage() {
             ))}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

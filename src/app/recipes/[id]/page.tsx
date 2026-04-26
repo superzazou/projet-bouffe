@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { INGREDIENT_UNITS } from "@/lib/types";
-import LogoutButton from "@/components/LogoutButton";
+import AppLayout from "@/components/AppLayout";
 
 const UNIT_LABELS = Object.fromEntries(INGREDIENT_UNITS.map((u) => [u.value, u.label]));
 
@@ -46,15 +46,8 @@ export default async function RecipeDetailPage({
   if (!recipe) notFound();
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-stone-200 bg-white">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-          <h1 className="text-lg font-semibold tracking-tight">Projet Bouffe</h1>
-          <LogoutButton />
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-2xl px-4 py-8">
+    <AppLayout>
+      <div className="mx-auto max-w-2xl px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <Link href="/recipes" className="text-sm text-stone-500 hover:text-stone-800">
             ← Mes recettes
@@ -113,7 +106,7 @@ export default async function RecipeDetailPage({
             )}
           </section>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }
