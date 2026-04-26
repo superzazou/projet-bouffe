@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { MealPlan, MealType } from "@/lib/types";
+import RecipeCombobox from "@/components/RecipeCombobox";
 
 type Recipe = { id: string; title: string };
 
@@ -137,19 +138,12 @@ export default function PlanningWeek({ initialMealPlans, recipes, today }: Props
                   return (
                     <div key={mealType} className="flex items-center gap-2 flex-1">
                       <span className="text-xs text-stone-400 w-8 shrink-0">{MEAL_LABELS[mealType]}</span>
-                      <select
-                        disabled={isSaving}
+                      <RecipeCombobox
+                        recipes={recipes}
                         value={plan?.recipe_id ?? ""}
-                        onChange={(e) => handleChange(dateStr, mealType, e.target.value)}
-                        className="flex-1 rounded-md border border-stone-200 px-3 py-1.5 text-sm text-stone-700 outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500 disabled:opacity-50 bg-white"
-                      >
-                        <option value="">— Pas de repas prévu —</option>
-                        {recipes.map((r) => (
-                          <option key={r.id} value={r.id}>
-                            {r.title}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(id) => handleChange(dateStr, mealType, id)}
+                        disabled={isSaving}
+                      />
                     </div>
                   );
                 })}
