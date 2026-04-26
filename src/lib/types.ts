@@ -35,3 +35,14 @@ export type RecipeWithCounts = Recipe & {
 export type RecipeWithIngredients = Recipe & {
   recipe_ingredients: RecipeIngredient[];
 };
+
+export type MealType = 'lunch' | 'dinner';
+
+export type MealPlan = {
+  id: string;
+  user_id: string;
+  date: string;
+  meal_type: MealType;
+  recipe_id: string | null;
+  created_at: string;
+};
