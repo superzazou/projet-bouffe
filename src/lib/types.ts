@@ -36,6 +36,32 @@ export type RecipeWithIngredients = Recipe & {
   recipe_ingredients: RecipeIngredient[];
 };
 
+export type ShoppingItemStatus = 'to_buy' | 'in_cart';
+
+export type ShoppingItem = {
+  id: string;
+  label: string;
+  status: ShoppingItemStatus;
+  position: number;
+};
+
+export type ShoppingListStatus = 'active' | 'archived';
+
+export type ShoppingList = {
+  id: string;
+  user_id: string;
+  title: string;
+  status: ShoppingListStatus;
+  items: ShoppingItem[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type ShoppingListSummary = Omit<ShoppingList, 'items'> & {
+  total_items: number;
+  in_cart_items: number;
+};
+
 export type MealType = 'lunch' | 'dinner';
 
 export type MealPlan = {

@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 const NAV_ITEMS = [
   { href: "/planning", label: "Planning" },
   { href: "/recipes", label: "Recettes" },
+  { href: "/shopping-lists", label: "Listes de courses" },
 ];
 
 function NavLinks({ currentPath, onClick }: { currentPath: string; onClick?: () => void }) {
