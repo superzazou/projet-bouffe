@@ -6,6 +6,19 @@ import LogoutButton from "@/components/LogoutButton";
 
 const UNIT_LABELS = Object.fromEntries(INGREDIENT_UNITS.map((u) => [u.value, u.label]));
 
+function highlightIngredients(text: string, ingredients: { text: string }[]) {
+  if (ingredients.length === 0) return text;
+
+  const sorted = [...ingredients].map((i) => i.text).sort((a, b) => b.length - a.length);
+  const pattern = sorted.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  const regex = new RegExp(`(${pattern})`, "gi");
+  const parts = text.split(regex);
+
+  return parts.map((part, i) =>
+    regex.test(part) ? <strong key={i} className="font-semibold">{part}</strong> : part
+  );
+}
+
 export default async function RecipeDetailPage({
   params,
 }: {
@@ -91,7 +104,9 @@ export default async function RecipeDetailPage({
                   .map((step) => (
                     <li key={step.order} className="flex gap-3">
                       <span className="text-stone-400 text-sm shrink-0 mt-0.5">{step.order}.</span>
-                      <p className="text-sm text-stone-900">{step.text}</p>
+                      <p className="text-sm text-stone-900">
+                        {highlightIngredients(step.text, recipe.recipe_ingredients)}
+                      </p>
                     </li>
                   ))}
               </ol>

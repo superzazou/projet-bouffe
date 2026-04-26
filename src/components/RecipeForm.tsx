@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { IngredientUnit, RecipeIngredient, RecipeStep } from "@/lib/types";
@@ -48,7 +48,27 @@ export default function RecipeForm({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const stepRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
+  const ingredientRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const focusStepIndex = useRef<number | null>(null);
+  const focusIngredientIndex = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (focusStepIndex.current !== null) {
+      stepRefs.current[focusStepIndex.current]?.focus();
+      focusStepIndex.current = null;
+    }
+  }, [steps]);
+
+  useEffect(() => {
+    if (focusIngredientIndex.current !== null) {
+      ingredientRefs.current[focusIngredientIndex.current]?.focus();
+      focusIngredientIndex.current = null;
+    }
+  }, [ingredients]);
+
   function addStep() {
+    focusStepIndex.current = steps.length;
     setSteps((prev) => [...prev, ""]);
   }
 
@@ -61,6 +81,7 @@ export default function RecipeForm({
   }
 
   function addIngredient() {
+    focusIngredientIndex.current = ingredients.length;
     setIngredients((prev) => [...prev, { text: "", quantity: "", unit: "pieces" }]);
   }
 
@@ -74,7 +95,7 @@ export default function RecipeForm({
     setIngredients((prev) => prev.filter((_, i) => i !== index));
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -201,8 +222,15 @@ export default function RecipeForm({
           <div key={index} className="flex items-start gap-2">
             <span className="mt-2 text-sm text-stone-400 w-5 shrink-0">{index + 1}.</span>
             <textarea
+              ref={(el) => { stepRefs.current[index] = el; }}
               value={step}
               onChange={(e) => updateStep(index, e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addStep();
+                }
+              }}
               rows={2}
               className="flex-1 rounded-md border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500 resize-none"
             />
@@ -231,10 +259,12 @@ export default function RecipeForm({
         {ingredients.map((ing, index) => (
           <div key={index} className="flex items-center gap-2">
             <input
+              ref={(el) => { ingredientRefs.current[index] = el; }}
               type="text"
               placeholder="Ingrédient"
               value={ing.text}
               onChange={(e) => updateIngredient(index, "text", e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addIngredient(); } }}
               className="flex-1 rounded-md border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500"
             />
             <input
@@ -243,11 +273,13 @@ export default function RecipeForm({
               min="1"
               value={ing.quantity}
               onChange={(e) => updateIngredient(index, "quantity", e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addIngredient(); } }}
               className="w-20 rounded-md border border-stone-300 px-3 py-2 text-sm outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500"
             />
             <select
               value={ing.unit}
               onChange={(e) => updateIngredient(index, "unit", e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addIngredient(); } }}
               className="rounded-md border border-stone-300 px-2 py-2 text-sm outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500"
             >
               {INGREDIENT_UNITS.map((u) => (
