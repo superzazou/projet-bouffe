@@ -1,14 +1,9 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import AppLayout from "@/components/AppLayout";
 import PlanningWeek from "./PlanningWeek";
 import type { MealPlan } from "@/lib/types";
 
 export default async function PlanningPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) redirect("/");
 
   const today = new Date();
   const startOfRange = new Date(today);
@@ -29,15 +24,13 @@ export default async function PlanningPage() {
   ]);
 
   return (
-    <AppLayout>
-      <div className="mx-auto max-w-4xl px-4 py-8">
-        <h2 className="text-xl font-semibold mb-6">Planning des repas</h2>
-        <PlanningWeek
-          initialMealPlans={(mealPlans ?? []) as MealPlan[]}
-          recipes={recipes ?? []}
-          today={today.toISOString().split("T")[0]}
-        />
-      </div>
-    </AppLayout>
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <h2 className="text-xl font-semibold mb-6">Planning des repas</h2>
+      <PlanningWeek
+        initialMealPlans={(mealPlans ?? []) as MealPlan[]}
+        recipes={recipes ?? []}
+        today={today.toISOString().split("T")[0]}
+      />
+    </div>
   );
 }

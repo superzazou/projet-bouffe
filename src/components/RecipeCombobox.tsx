@@ -66,7 +66,6 @@ export default function RecipeCombobox({ recipes, value, onChange, disabled }: P
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <Link
           href={`/recipes/${selected.id}`}
-          target="_blank"
           className="flex-1 truncate text-sm font-medium text-stone-800 hover:underline min-w-0"
         >
           {selected.title}
