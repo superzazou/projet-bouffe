@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import type { RecipeWithCounts } from "@/lib/types";
 
 export default async function RecipesPage() {
   const supabase = await createClient();
@@ -18,9 +17,11 @@ export default async function RecipesPage() {
     `)
     .order("title", { ascending: true });
 
-  const typedRecipes = (recipes ?? []) as unknown as (Omit<RecipeWithCounts, "ingredient_count"> & {
-    recipe_ingredients: [{ count: number }];
-  })[];
+  type RecipeRow = NonNullable<typeof recipes>[number] & {
+    recipe_ingredients: { count: number }[];
+    steps: unknown[];
+  };
+  const typedRecipes = (recipes ?? []) as RecipeRow[];
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">

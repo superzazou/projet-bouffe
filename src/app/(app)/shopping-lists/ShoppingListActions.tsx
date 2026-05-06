@@ -9,6 +9,7 @@ export default function ShoppingListActions({ list }: { list: ShoppingList }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -25,21 +26,34 @@ export default function ShoppingListActions({ list }: { list: ShoppingList }) {
   async function handleArchive() {
     setLoading(true);
     setOpen(false);
-    await archiveShoppingList(list.id);
-    setLoading(false);
-    router.refresh();
+    try {
+      await archiveShoppingList(list.id);
+      router.refresh();
+    } catch {
+      setError("Erreur lors de l'archivage.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleDelete() {
     setLoading(true);
     setShowConfirm(false);
-    await deleteShoppingList(list.id);
-    setLoading(false);
-    router.refresh();
+    try {
+      await deleteShoppingList(list.id);
+      router.refresh();
+    } catch {
+      setError("Erreur lors de la suppression.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <>
+      {error && (
+        <p className="text-xs text-red-600">{error}</p>
+      )}
       <div className="relative" ref={menuRef}>
         <button
           onClick={(e) => { e.preventDefault(); setOpen((v) => !v); }}

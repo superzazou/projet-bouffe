@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import type { ShoppingList } from "@/lib/types";
+import type { ShoppingList, ShoppingItem } from "@/lib/types";
 import ShoppingListActions from "./ShoppingListActions";
 
 function formatDate(date: string) {
@@ -39,7 +39,11 @@ export default async function ShoppingListsPage() {
     .select("*")
     .order("updated_at", { ascending: false });
 
-  const allLists = (lists ?? []) as ShoppingList[];
+  const allLists: ShoppingList[] = (lists ?? []).map((l) => ({
+    ...l,
+    status: l.status as ShoppingList["status"],
+    items: l.items as ShoppingItem[],
+  }));
   const activeLists = allLists.filter((l) => l.status === "active");
   const archivedLists = allLists.filter((l) => l.status === "archived");
 

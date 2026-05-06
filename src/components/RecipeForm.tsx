@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import type { IngredientUnit, RecipeIngredient, RecipeStep } from "@/lib/types";
 import { INGREDIENT_UNITS } from "@/lib/types";
+import { createRecipe, updateRecipe } from "@/app/(app)/recipes/actions";
 
 type IngredientForm = {
   id?: string;
@@ -100,103 +100,28 @@ export default function RecipeForm({
     setError(null);
     setLoading(true);
 
-    const filledSteps = steps.filter((s) => s.trim() !== "");
-    const filledIngredients = ingredients.filter(
-      (ing) => ing.text.trim() !== "" && ing.quantity !== ""
-    );
-    const supabase = createClient();
+    const filledSteps: RecipeStep[] = steps
+      .filter((s) => s.trim() !== "")
+      .map((text, i) => ({ order: i + 1, text }));
 
-    if (isEditing) {
-      const { error: recipeError } = await supabase
-        .from("recipes")
-        .update({
-          title: title.trim(),
-          steps: filledSteps.map((text, i): RecipeStep => ({ order: i + 1, text })),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", recipeId);
+    const filledIngredients = ingredients
+      .filter((ing) => ing.text.trim() !== "" && ing.quantity !== "")
+      .map((ing) => ({
+        id: ing.id,
+        text: ing.text.trim(),
+        quantity: parseInt(ing.quantity, 10),
+        unit: ing.unit,
+      }));
 
-      if (recipeError) {
-        setError("Erreur lors de la mise à jour de la recette.");
-        setLoading(false);
-        return;
+    try {
+      if (isEditing) {
+        await updateRecipe(recipeId, title.trim(), filledSteps, filledIngredients);
+      } else {
+        await createRecipe(title.trim(), filledSteps, filledIngredients);
       }
-
-      const { error: deleteError } = await supabase
-        .from("recipe_ingredients")
-        .delete()
-        .eq("recipe_id", recipeId);
-
-      if (deleteError) {
-        setError("Erreur lors de la mise à jour des ingrédients.");
-        setLoading(false);
-        return;
-      }
-
-      if (filledIngredients.length > 0) {
-        const { error: ingredientsError } = await supabase
-          .from("recipe_ingredients")
-          .insert(
-            filledIngredients.map((ing) => ({
-              recipe_id: recipeId,
-              text: ing.text.trim(),
-              quantity: parseInt(ing.quantity, 10),
-              unit: ing.unit,
-            }))
-          );
-
-        if (ingredientsError) {
-          setError("Erreur lors de la mise à jour des ingrédients.");
-          setLoading(false);
-          return;
-        }
-      }
-
-      router.push(`/recipes/${recipeId}`);
-    } else {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setError("Session expirée, veuillez vous reconnecter.");
-        setLoading(false);
-        return;
-      }
-
-      const { data: recipe, error: recipeError } = await supabase
-        .from("recipes")
-        .insert({
-          user_id: user.id,
-          title: title.trim(),
-          steps: filledSteps.map((text, i): RecipeStep => ({ order: i + 1, text })),
-        })
-        .select("id")
-        .single();
-
-      if (recipeError || !recipe) {
-        setError("Erreur lors de la création de la recette.");
-        setLoading(false);
-        return;
-      }
-
-      if (filledIngredients.length > 0) {
-        const { error: ingredientsError } = await supabase
-          .from("recipe_ingredients")
-          .insert(
-            filledIngredients.map((ing) => ({
-              recipe_id: recipe.id,
-              text: ing.text.trim(),
-              quantity: parseInt(ing.quantity, 10),
-              unit: ing.unit,
-            }))
-          );
-
-        if (ingredientsError) {
-          setError("Erreur lors de l'ajout des ingrédients.");
-          setLoading(false);
-          return;
-        }
-      }
-
-      router.push(`/recipes/${recipe.id}`);
+    } catch {
+      setError(isEditing ? "Erreur lors de la mise à jour de la recette." : "Erreur lors de la création de la recette.");
+      setLoading(false);
     }
   }
 

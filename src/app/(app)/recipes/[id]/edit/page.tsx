@@ -30,7 +30,7 @@ export default async function EditRecipePage({
       <RecipeForm
         recipeId={recipe.id}
         initialTitle={recipe.title}
-        initialSteps={recipe.steps as RecipeStep[]}
+        initialSteps={(recipe.steps as unknown as RecipeStep[]) ?? []}
         initialIngredients={recipe.recipe_ingredients as RecipeIngredient[]}
       />
     </div>

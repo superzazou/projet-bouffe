@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import type { MealPlan, MealType } from "@/lib/types";
 import RecipeCombobox from "@/components/RecipeCombobox";
 import { createShoppingListFromPlanning } from "../shopping-lists/actions";
+import { deleteMealPlan, upsertMealPlan } from "./actions";
 
 type Recipe = { id: string; title: string };
 
@@ -70,10 +70,13 @@ export default function PlanningWeek({ initialMealPlans, recipes, today }: Props
   async function handleCreateList() {
     if (!listTitle.trim() || selectedPlanningRecipeIds.length === 0) return;
     setCreatingList(true);
-    const list = await createShoppingListFromPlanning(listTitle.trim(), selectedPlanningRecipeIds);
-    setCreatingList(false);
-    setShowListModal(false);
-    router.push(`/shopping-lists/${list.id}`);
+    try {
+      const list = await createShoppingListFromPlanning(listTitle.trim(), selectedPlanningRecipeIds);
+      setShowListModal(false);
+      router.push(`/shopping-lists/${list.id}`);
+    } finally {
+      setCreatingList(false);
+    }
   }
 
   function getMealPlan(date: string, mealType: MealType): MealPlan | undefined {
@@ -83,38 +86,29 @@ export default function PlanningWeek({ initialMealPlans, recipes, today }: Props
   async function handleChange(date: string, mealType: MealType, recipeId: string) {
     const key = `${date}-${mealType}`;
     setSavingKey(key);
-    const supabase = createClient();
     const existing = getMealPlan(date, mealType);
 
-    if (recipeId === "") {
-      if (existing) {
-        await supabase.from("meal_plans").delete().eq("id", existing.id);
-        setMealPlans((prev) => prev.filter((mp) => mp.id !== existing.id));
+    try {
+      if (recipeId === "") {
+        if (existing) {
+          await deleteMealPlan(existing.id);
+          setMealPlans((prev) => prev.filter((mp) => mp.id !== existing.id));
+        }
+      } else if (existing) {
+        await upsertMealPlan(date, mealType, recipeId, existing.id);
+        setMealPlans((prev) =>
+          prev.map((mp) => (mp.id === existing.id ? { ...mp, recipe_id: recipeId } : mp))
+        );
+      } else {
+        const newId = await upsertMealPlan(date, mealType, recipeId);
+        setMealPlans((prev) => [
+          ...prev,
+          { id: newId, date, meal_type: mealType, recipe_id: recipeId, user_id: "", created_at: "" },
+        ]);
       }
-    } else if (existing) {
-      const { data } = await supabase
-        .from("meal_plans")
-        .update({ recipe_id: recipeId })
-        .eq("id", existing.id)
-        .select("id, date, meal_type, recipe_id, user_id, created_at")
-        .single();
-      if (data) {
-        setMealPlans((prev) => prev.map((mp) => (mp.id === existing.id ? (data as MealPlan) : mp)));
-      }
-    } else {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase
-        .from("meal_plans")
-        .insert({ user_id: user.id, date, meal_type: mealType, recipe_id: recipeId })
-        .select("id, date, meal_type, recipe_id, user_id, created_at")
-        .single();
-      if (data) {
-        setMealPlans((prev) => [...prev, data as MealPlan]);
-      }
+    } finally {
+      setSavingKey(null);
     }
-
-    setSavingKey(null);
   }
 
   const canGoPrev = weekOffset > -4;

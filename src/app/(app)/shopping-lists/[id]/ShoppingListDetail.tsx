@@ -106,6 +106,7 @@ export default function ShoppingListDetail({ list: initialList, recipes }: { lis
   const [list, setList] = useState(initialList);
   const [newLabel, setNewLabel] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(initialList.title);
   const [showRecipePicker, setShowRecipePicker] = useState(false);
@@ -121,8 +122,13 @@ export default function ShoppingListDetail({ list: initialList, recipes }: { lis
 
   async function saveItems(items: ShoppingItem[]) {
     setSaving(true);
-    await updateShoppingListItems(list.id, items);
-    setSaving(false);
+    try {
+      await updateShoppingListItems(list.id, items);
+    } catch {
+      setError("Erreur lors de la sauvegarde.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleToggle(id: string) {
@@ -176,18 +182,27 @@ export default function ShoppingListDetail({ list: initialList, recipes }: { lis
   }, [toBuyItems, inCartItems]);
 
   async function handleArchive() {
-    await archiveShoppingList(list.id);
-    router.push("/shopping-lists");
+    try {
+      await archiveShoppingList(list.id);
+      router.push("/shopping-lists");
+    } catch {
+      setError("Erreur lors de l'archivage.");
+    }
   }
 
   async function handleAddRecipes() {
     if (selectedRecipeIds.length === 0) return;
     setAddingRecipes(true);
-    await addRecipesToShoppingList(list.id, selectedRecipeIds);
-    setAddingRecipes(false);
-    setShowRecipePicker(false);
-    setSelectedRecipeIds([]);
-    router.refresh();
+    try {
+      await addRecipesToShoppingList(list.id, selectedRecipeIds);
+      setShowRecipePicker(false);
+      setSelectedRecipeIds([]);
+      router.refresh();
+    } catch {
+      setError("Erreur lors de l'ajout des recettes.");
+    } finally {
+      setAddingRecipes(false);
+    }
   }
 
   async function handleTitleSave() {
@@ -196,13 +211,22 @@ export default function ShoppingListDetail({ list: initialList, recipes }: { lis
       setEditingTitle(false);
       return;
     }
-    await updateShoppingListTitle(list.id, titleDraft.trim());
-    setList((l) => ({ ...l, title: titleDraft.trim() }));
-    setEditingTitle(false);
+    try {
+      await updateShoppingListTitle(list.id, titleDraft.trim());
+      setList((l) => ({ ...l, title: titleDraft.trim() }));
+    } catch {
+      setError("Erreur lors de la mise à jour du titre.");
+      setTitleDraft(list.title);
+    } finally {
+      setEditingTitle(false);
+    }
   }
 
   return (
     <div className="flex flex-col gap-6">
+      {error && (
+        <p className="text-sm text-red-600 rounded-md bg-red-50 px-3 py-2">{error}</p>
+      )}
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">

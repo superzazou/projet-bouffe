@@ -16,16 +16,21 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      setError("Identifiants incorrects.");
+      if (error) {
+        setError("Identifiants incorrects.");
+        return;
+      }
+
+      router.push("/recipes");
+    } catch {
+      setError("Une erreur est survenue. Réessayez.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push("/recipes");
   }
 
   return (

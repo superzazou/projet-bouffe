@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import type { ShoppingList } from "@/lib/types";
+import type { ShoppingList, ShoppingItem } from "@/lib/types";
 import ShoppingListDetail from "./ShoppingListDetail";
 
 export default async function ShoppingListPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,7 +15,11 @@ export default async function ShoppingListPage({ params }: { params: Promise<{ i
 
   if (!data) notFound();
 
-  const list = data as ShoppingList;
+  const list: ShoppingList = {
+    ...data,
+    status: data.status as ShoppingList["status"],
+    items: data.items as ShoppingItem[],
+  };
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { INGREDIENT_UNITS } from "@/lib/types";
+import type { RecipeStep } from "@/lib/types";
 
 const UNIT_LABELS = Object.fromEntries(INGREDIENT_UNITS.map((u) => [u.value, u.label]));
 
@@ -10,11 +11,12 @@ function highlightIngredients(text: string, ingredients: { text: string }[]) {
 
   const sorted = [...ingredients].map((i) => i.text).sort((a, b) => b.length - a.length);
   const pattern = sorted.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
-  const regex = new RegExp(`(${pattern})`, "gi");
-  const parts = text.split(regex);
+  const splitRegex = new RegExp(`(${pattern})`, "gi");
+  const matchRegex = new RegExp(`^(${pattern})$`, "i");
+  const parts = text.split(splitRegex);
 
   return parts.map((part, i) =>
-    regex.test(part) ? <strong key={i} className="font-semibold">{part}</strong> : part
+    matchRegex.test(part) ? <strong key={i} className="font-semibold">{part}</strong> : part
   );
 }
 
@@ -83,11 +85,11 @@ export default async function RecipeDetailPage({
           <h3 className="text-sm font-semibold uppercase tracking-wide text-stone-500 mb-3">
             Étapes
           </h3>
-          {recipe.steps.length === 0 ? (
+          {((recipe.steps as unknown as RecipeStep[]) ?? []).length === 0 ? (
             <p className="text-sm text-stone-400">Aucune étape.</p>
           ) : (
             <ol className="flex flex-col gap-4">
-              {(recipe.steps as { order: number; text: string }[])
+              {(recipe.steps as unknown as RecipeStep[])
                 .sort((a, b) => a.order - b.order)
                 .map((step) => (
                   <li key={step.order} className="flex gap-3">
