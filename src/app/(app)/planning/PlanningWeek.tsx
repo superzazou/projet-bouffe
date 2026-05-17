@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { MealPlan, MealType } from "@/lib/types";
 import RecipeCombobox from "@/components/RecipeCombobox";
 import { createShoppingListFromPlanning } from "../shopping-lists/actions";
-import { deleteMealPlan, upsertMealPlan } from "./actions";
+import { addMealPlan, deleteMealPlan } from "./actions";
 
 type Recipe = { id: string; title: string };
 
@@ -79,36 +80,27 @@ export default function PlanningWeek({ initialMealPlans, recipes, today }: Props
     }
   }
 
-  function getMealPlan(date: string, mealType: MealType): MealPlan | undefined {
-    return mealPlans.find((mp) => mp.date === date && mp.meal_type === mealType);
+  function getSlotPlans(date: string, mealType: MealType): MealPlan[] {
+    return mealPlans.filter((mp) => mp.date === date && mp.meal_type === mealType);
   }
 
-  async function handleChange(date: string, mealType: MealType, recipeId: string) {
+  async function handleAdd(date: string, mealType: MealType, recipeId: string) {
     const key = `${date}-${mealType}`;
     setSavingKey(key);
-    const existing = getMealPlan(date, mealType);
-
     try {
-      if (recipeId === "") {
-        if (existing) {
-          await deleteMealPlan(existing.id);
-          setMealPlans((prev) => prev.filter((mp) => mp.id !== existing.id));
-        }
-      } else if (existing) {
-        await upsertMealPlan(date, mealType, recipeId, existing.id);
-        setMealPlans((prev) =>
-          prev.map((mp) => (mp.id === existing.id ? { ...mp, recipe_id: recipeId } : mp))
-        );
-      } else {
-        const newId = await upsertMealPlan(date, mealType, recipeId);
-        setMealPlans((prev) => [
-          ...prev,
-          { id: newId, date, meal_type: mealType, recipe_id: recipeId, user_id: "", created_at: "" },
-        ]);
-      }
+      const newId = await addMealPlan(date, mealType, recipeId);
+      setMealPlans((prev) => [
+        ...prev,
+        { id: newId, date, meal_type: mealType, recipe_id: recipeId, user_id: "", created_at: "" },
+      ]);
     } finally {
       setSavingKey(null);
     }
+  }
+
+  async function handleRemove(mealPlanId: string) {
+    await deleteMealPlan(mealPlanId);
+    setMealPlans((prev) => prev.filter((mp) => mp.id !== mealPlanId));
   }
 
   const canGoPrev = weekOffset > -4;
@@ -216,16 +208,38 @@ export default function PlanningWeek({ initialMealPlans, recipes, today }: Props
               <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
                 {MEAL_TYPES.map((mealType) => {
                   const key = `${dateStr}-${mealType}`;
-                  const plan = getMealPlan(dateStr, mealType);
+                  const slotPlans = getSlotPlans(dateStr, mealType);
                   const isSaving = savingKey === key;
+                  const addedRecipeIds = slotPlans.map((p) => p.recipe_id);
                   return (
-                    <div key={mealType} className="flex items-center gap-2 flex-1">
-                      <span className="text-xs text-stone-400 w-8 shrink-0">{MEAL_LABELS[mealType]}</span>
+                    <div key={mealType} className="flex-1 flex flex-col gap-1.5">
+                      <span className="text-xs text-stone-400">{MEAL_LABELS[mealType]}</span>
+                      {slotPlans.map((plan) => {
+                        const recipe = recipes.find((r) => r.id === plan.recipe_id);
+                        if (!recipe) return null;
+                        return (
+                          <div key={plan.id} className="flex items-center gap-2">
+                            <Link
+                              href={`/recipes/${recipe.id}`}
+                              className="flex-1 truncate text-sm font-medium text-stone-800 hover:underline min-w-0"
+                            >
+                              {recipe.title}
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => handleRemove(plan.id)}
+                              className="shrink-0 rounded-md bg-stone-100 px-2 py-1 text-xs font-medium text-stone-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                            >
+                              Retirer
+                            </button>
+                          </div>
+                        );
+                      })}
                       <RecipeCombobox
                         recipes={recipes}
-                        value={plan?.recipe_id ?? ""}
-                        onChange={(id) => handleChange(dateStr, mealType, id)}
+                        onAdd={(id) => handleAdd(dateStr, mealType, id)}
                         disabled={isSaving}
+                        excludeIds={addedRecipeIds}
                       />
                     </div>
                   );

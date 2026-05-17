@@ -45,7 +45,7 @@ export type Database = {
           date: string
           id: string
           meal_type: Database["public"]["Enums"]["meal_type"]
-          recipe_id: string | null
+          recipe_id: string
           user_id: string
         }
         Insert: {
@@ -53,7 +53,7 @@ export type Database = {
           date: string
           id?: string
           meal_type: Database["public"]["Enums"]["meal_type"]
-          recipe_id?: string | null
+          recipe_id: string
           user_id: string
         }
         Update: {
@@ -61,7 +61,7 @@ export type Database = {
           date?: string
           id?: string
           meal_type?: Database["public"]["Enums"]["meal_type"]
-          recipe_id?: string | null
+          recipe_id?: string
           user_id?: string
         }
         Relationships: [

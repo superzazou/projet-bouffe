@@ -69,6 +69,6 @@ export type MealPlan = {
   user_id: string;
   date: string;
   meal_type: MealType;
-  recipe_id: string | null;
+  recipe_id: string;
   created_at: string;
 };
