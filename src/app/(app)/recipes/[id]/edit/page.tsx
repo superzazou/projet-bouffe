@@ -11,18 +11,26 @@ export default async function EditRecipePage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: recipe } = await supabase
-    .from("recipes")
-    .select(`
-      id,
-      title,
-      steps,
-      recipe_ingredients(id, text, quantity, unit)
-    `)
-    .eq("id", id)
-    .single();
+  const [{ data: recipe }, { data: allTags }] = await Promise.all([
+    supabase
+      .from("recipes")
+      .select(`
+        id,
+        title,
+        steps,
+        recipe_ingredients(id, text, quantity, unit),
+        recipe_tags(tags(id, name))
+      `)
+      .eq("id", id)
+      .single(),
+    supabase.from("tags").select("name").order("name", { ascending: true }),
+  ]);
 
   if (!recipe) notFound();
+
+  const initialTags = (recipe.recipe_tags as { tags: { id: string; name: string } }[])
+    .map((rt) => rt.tags.name);
+  const allTagNames = (allTags ?? []).map((t) => t.name);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
@@ -32,6 +40,8 @@ export default async function EditRecipePage({
         initialTitle={recipe.title}
         initialSteps={(recipe.steps as unknown as RecipeStep[]) ?? []}
         initialIngredients={recipe.recipe_ingredients as RecipeIngredient[]}
+        initialTags={initialTags}
+        allTags={allTagNames}
       />
     </div>
   );

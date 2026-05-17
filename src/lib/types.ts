@@ -62,6 +62,13 @@ export type ShoppingListSummary = Omit<ShoppingList, 'items'> & {
   in_cart_items: number;
 };
 
+export type Tag = {
+  id: string;
+  user_id: string;
+  name: string;
+  created_at: string;
+};
+
 export type MealType = 'lunch' | 'dinner';
 
 export type MealPlan = {

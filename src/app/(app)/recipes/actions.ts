@@ -12,10 +12,32 @@ type IngredientInput = {
   unit: IngredientUnit;
 };
 
+async function syncTags(supabase: Awaited<ReturnType<typeof createClient>>, userId: string, recipeId: string, tagNames: string[]) {
+  if (tagNames.length === 0) return;
+
+  const { data: tags, error: upsertError } = await supabase
+    .from("tags")
+    .upsert(
+      tagNames.map((name) => ({ user_id: userId, name })),
+      { onConflict: "user_id,name" }
+    )
+    .select("id");
+
+  if (upsertError) throw new Error(upsertError.message);
+  if (!tags || tags.length === 0) return;
+
+  const { error: linkError } = await supabase
+    .from("recipe_tags")
+    .insert(tags.map((tag) => ({ recipe_id: recipeId, tag_id: tag.id })));
+
+  if (linkError) throw new Error(linkError.message);
+}
+
 export async function createRecipe(
   title: string,
   steps: RecipeStep[],
-  ingredients: IngredientInput[]
+  ingredients: IngredientInput[],
+  tagNames: string[] = []
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -36,6 +58,8 @@ export async function createRecipe(
     if (error) throw new Error(error.message);
   }
 
+  await syncTags(supabase, user.id, recipe.id, tagNames);
+
   revalidatePath("/recipes");
   redirect(`/recipes/${recipe.id}`);
 }
@@ -44,9 +68,12 @@ export async function updateRecipe(
   recipeId: string,
   title: string,
   steps: RecipeStep[],
-  ingredients: IngredientInput[]
+  ingredients: IngredientInput[],
+  tagNames: string[] = []
 ) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
 
   const { error: recipeError } = await supabase
     .from("recipes")
@@ -69,8 +96,16 @@ export async function updateRecipe(
     if (error) throw new Error(error.message);
   }
 
+  const { error: deleteTagsError } = await supabase
+    .from("recipe_tags")
+    .delete()
+    .eq("recipe_id", recipeId);
+
+  if (deleteTagsError) throw new Error(deleteTagsError.message);
+
+  await syncTags(supabase, user.id, recipeId, tagNames);
+
   revalidatePath(`/recipes/${recipeId}`);
   revalidatePath("/recipes");
   redirect(`/recipes/${recipeId}`);
 }
-

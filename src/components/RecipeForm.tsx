@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { IngredientUnit, RecipeIngredient, RecipeStep } from "@/lib/types";
 import { INGREDIENT_UNITS } from "@/lib/types";
 import { createRecipe, updateRecipe } from "@/app/(app)/recipes/actions";
+import TagInput from "@/components/TagInput";
 
 type IngredientForm = {
   id?: string;
@@ -18,6 +19,8 @@ type Props = {
   initialTitle?: string;
   initialSteps?: RecipeStep[];
   initialIngredients?: RecipeIngredient[];
+  initialTags?: string[];
+  allTags?: string[];
 };
 
 export default function RecipeForm({
@@ -25,6 +28,8 @@ export default function RecipeForm({
   initialTitle = "",
   initialSteps = [],
   initialIngredients = [],
+  initialTags = [],
+  allTags = [],
 }: Props) {
   const router = useRouter();
   const isEditing = !!recipeId;
@@ -45,6 +50,7 @@ export default function RecipeForm({
         }))
       : [{ text: "", quantity: "", unit: "pieces" }]
   );
+  const [tags, setTags] = useState<string[]>(initialTags);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -115,9 +121,9 @@ export default function RecipeForm({
 
     try {
       if (isEditing) {
-        await updateRecipe(recipeId, title.trim(), filledSteps, filledIngredients);
+        await updateRecipe(recipeId, title.trim(), filledSteps, filledIngredients, tags);
       } else {
-        await createRecipe(title.trim(), filledSteps, filledIngredients);
+        await createRecipe(title.trim(), filledSteps, filledIngredients, tags);
       }
     } catch {
       setError(isEditing ? "Erreur lors de la mise à jour de la recette." : "Erreur lors de la création de la recette.");
@@ -177,6 +183,11 @@ export default function RecipeForm({
         >
           + Ajouter une étape
         </button>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium text-stone-700">Tags</label>
+        <TagInput value={tags} onChange={setTags} suggestions={allTags} />
       </div>
 
       <div className="flex flex-col gap-3">

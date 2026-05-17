@@ -36,12 +36,15 @@ export default async function RecipeDetailPage({
       steps,
       created_at,
       updated_at,
-      recipe_ingredients(id, text, quantity, unit)
+      recipe_ingredients(id, text, quantity, unit),
+      recipe_tags(tags(name))
     `)
     .eq("id", id)
     .single();
 
   if (!recipe) notFound();
+
+  const tags = (recipe.recipe_tags as { tags: { name: string } }[]).map((rt) => rt.tags.name);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
@@ -57,7 +60,17 @@ export default async function RecipeDetailPage({
         </Link>
       </div>
 
-      <h2 className="text-2xl font-semibold mb-8">{recipe.title}</h2>
+      <h2 className="text-2xl font-semibold mb-2">{recipe.title}</h2>
+
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-8">
+          {tags.map((tag) => (
+            <span key={tag} className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-600">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="flex flex-col gap-8">
         <section>

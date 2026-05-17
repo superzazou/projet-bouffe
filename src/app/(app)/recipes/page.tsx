@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import RecipeList from "./RecipeList";
 
 export default async function RecipesPage() {
   const supabase = await createClient();
@@ -10,18 +11,25 @@ export default async function RecipesPage() {
       id,
       title,
       steps,
-      created_at,
-      updated_at,
-      user_id,
-      recipe_ingredients(count)
+      recipe_ingredients(text),
+      recipe_tags(tags(name))
     `)
     .order("title", { ascending: true });
 
-  type RecipeRow = NonNullable<typeof recipes>[number] & {
-    recipe_ingredients: { count: number }[];
+  type RawRecipe = NonNullable<typeof recipes>[number] & {
     steps: unknown[];
+    recipe_ingredients: { text: string }[];
+    recipe_tags: { tags: { name: string } }[];
   };
-  const typedRecipes = (recipes ?? []) as RecipeRow[];
+
+  const items = ((recipes ?? []) as RawRecipe[]).map((r) => ({
+    id: r.id,
+    title: r.title,
+    stepCount: r.steps.length,
+    ingredientCount: r.recipe_ingredients.length,
+    ingredientNames: r.recipe_ingredients.map((i) => i.text),
+    tags: r.recipe_tags.map((rt) => rt.tags.name),
+  }));
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -35,23 +43,10 @@ export default async function RecipesPage() {
         </Link>
       </div>
 
-      {typedRecipes.length === 0 ? (
+      {items.length === 0 ? (
         <p className="text-stone-500 text-sm">Aucune recette pour l&apos;instant.</p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {typedRecipes.map((recipe) => (
-            <Link
-              key={recipe.id}
-              href={`/recipes/${recipe.id}`}
-              className="rounded-lg border border-stone-200 bg-white p-4 flex flex-col gap-1 hover:border-stone-400 transition-colors"
-            >
-              <p className="font-medium text-stone-900">{recipe.title}</p>
-              <p className="text-sm text-stone-500">
-                {recipe.steps.length} étape{recipe.steps.length !== 1 ? "s" : ""} · {recipe.recipe_ingredients[0]?.count ?? 0} ingrédient{(recipe.recipe_ingredients[0]?.count ?? 0) !== 1 ? "s" : ""}
-              </p>
-            </Link>
-          ))}
-        </div>
+        <RecipeList recipes={items} />
       )}
     </div>
   );
