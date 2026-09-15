@@ -30,11 +30,11 @@ Remplacement de la vue planning verticale par une expérience calquée sur Googl
   4. User can add a recipe to any Midi or Soir slot via an inline combobox and immediately see it appear
   5. User can remove a recipe from any slot; the "Creer une liste de courses" button remains accessible and functional
 
-**Plans**: 2 plans
+**Plans**: 1/2 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Fix timezone bug in getMondayOf/toDateStr and derive todayStr client-side (FND-01)
+- [x] 01-01-PLAN.md — Fix timezone bug in getMondayOf/toDateStr and derive todayStr client-side (FND-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -66,5 +66,5 @@ Phases execute in numeric order: 1 → 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Desktop Week Grid | 0/? | Not started | - |
+| 1. Foundation + Desktop Week Grid | 1/2 | In Progress|  |
 | 2. Mobile Day View + Swipe Navigation | 0/? | Not started | - |

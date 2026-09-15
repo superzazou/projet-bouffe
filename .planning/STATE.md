@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 1
-current_phase_name: Foundation + Desktop Week Grid
+current_phase: 01
+current_phase_name: foundation-desktop-week-grid
 status: executing
 stopped_at: Phase 1 context gathered
-last_updated: "2026-09-15T12:04:48.673Z"
+last_updated: "2026-09-15T12:06:27.934Z"
 last_activity: 2026-09-15
-last_activity_desc: Roadmap created, ready to begin Phase 1 planning
+last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 1
   completed_phases: 0
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-15)
 
 **Core value:** L'utilisateur peut voir et modifier son planning de la semaine en un coup d'oeil, depuis n'importe quel appareil.
-**Current focus:** Phase 1 — Foundation + Desktop Week Grid
+**Current focus:** Phase 01 — foundation-desktop-week-grid
 
 ## Current Position
 
-Phase: 1 of 2 (Foundation + Desktop Week Grid)
-Plan: 0 of ? in current phase
-Status: Ready to execute
-Last activity: 2026-09-15 — Roadmap created, ready to begin Phase 1 planning
+Phase: 01 (foundation-desktop-week-grid) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 01
+Last activity: 2026-09-15 — Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
