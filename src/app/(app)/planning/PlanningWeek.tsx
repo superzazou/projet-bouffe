@@ -21,11 +21,12 @@ const MEAL_LABELS: Record<MealType, string> = { lunch: "Midi", dinner: "Soir" };
 const MEAL_TYPES: MealType[] = ["lunch", "dinner"];
 
 function getMondayOf(dateStr: string): Date {
-  const d = new Date(dateStr);
-  const day = d.getDay();
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const day = date.getDay();
   const diff = day === 0 ? -6 : 1 - day;
-  d.setDate(d.getDate() + diff);
-  return d;
+  date.setDate(date.getDate() + diff);
+  return date;
 }
 
 function addDays(date: Date, n: number): Date {
@@ -35,7 +36,10 @@ function addDays(date: Date, n: number): Date {
 }
 
 function toDateStr(date: Date): string {
-  return date.toISOString().split("T")[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function formatWeekLabel(monday: Date): string {
@@ -44,7 +48,10 @@ function formatWeekLabel(monday: Date): string {
   return `${monday.toLocaleDateString("fr-FR", opts)} – ${sunday.toLocaleDateString("fr-FR", opts)}`;
 }
 
-export default function PlanningWeek({ initialMealPlans, recipes, today }: Props) {
+export default function PlanningWeek({ initialMealPlans, recipes, today: _today }: Props) {
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
   const [weekOffset, setWeekOffset] = useState(0);
   const [mealPlans, setMealPlans] = useState<MealPlan[]>(initialMealPlans);
   const [savingKey, setSavingKey] = useState<string | null>(null);
@@ -54,12 +61,12 @@ export default function PlanningWeek({ initialMealPlans, recipes, today }: Props
   const [creatingList, setCreatingList] = useState(false);
   const router = useRouter();
 
-  const baseMonday = getMondayOf(today);
+  const baseMonday = getMondayOf(todayStr);
   const currentMonday = addDays(baseMonday, weekOffset * 7);
   const days = Array.from({ length: 7 }, (_, i) => addDays(currentMonday, i));
 
   const upcomingRecipes = recipes.filter((r) =>
-    mealPlans.some((mp) => mp.recipe_id === r.id && mp.date >= today)
+    mealPlans.some((mp) => mp.recipe_id === r.id && mp.date >= todayStr)
   );
 
   function openListModal() {
@@ -194,7 +201,7 @@ export default function PlanningWeek({ initialMealPlans, recipes, today }: Props
       <div className="flex flex-col gap-3">
         {days.map((day, i) => {
           const dateStr = toDateStr(day);
-          const isToday = dateStr === today;
+          const isToday = dateStr === todayStr;
           return (
             <div
               key={dateStr}
