@@ -26,7 +26,10 @@ Remplacement de la vue planning verticale par une expérience calquée sur Googl
   3. Each day column shows the abbreviated day name and date number; dates are correct regardless of the user's UTC offset
   4. User can add a recipe to any Midi or Soir slot via an inline combobox and immediately see it appear
   5. User can remove a recipe from any slot; the "Creer une liste de courses" button remains accessible and functional
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Fix timezone bug in getMondayOf/toDateStr and derive todayStr client-side (FND-01)
+- [ ] 01-02-PLAN.md — Replace vertical layout with 7-column horizontal grid, add today badge, merge nav row (DSK-01–04, SHR-01–04)
 **UI hint**: yes
 
 ### Phase 2: Mobile Day View + Swipe Navigation
