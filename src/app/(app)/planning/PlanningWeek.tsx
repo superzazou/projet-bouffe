@@ -123,6 +123,25 @@ export default function PlanningWeek({ initialMealPlans, recipes, today: _today 
         >
           Créer une liste de courses
         </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setWeekOffset((o) => o - 1)}
+            disabled={!canGoPrev}
+            className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-700 hover:border-stone-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            ← Semaine précédente
+          </button>
+          <span className="text-sm font-medium text-stone-700 min-w-[180px] text-center">
+            {weekOffset === 0 ? "Cette semaine" : formatWeekLabel(currentMonday)}
+          </span>
+          <button
+            onClick={() => setWeekOffset((o) => o + 1)}
+            disabled={!canGoNext}
+            className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-700 hover:border-stone-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            Semaine suivante →
+          </button>
+        </div>
       </div>
 
       {showListModal && (
@@ -178,83 +197,65 @@ export default function PlanningWeek({ initialMealPlans, recipes, today: _today 
         </div>
       )}
 
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => setWeekOffset((o) => o - 1)}
-          disabled={!canGoPrev}
-          className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-700 hover:border-stone-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          ← Semaine précédente
-        </button>
-        <span className="text-sm font-medium text-stone-700 min-w-[180px] text-center">
-          {weekOffset === 0 ? "Cette semaine" : formatWeekLabel(currentMonday)}
-        </span>
-        <button
-          onClick={() => setWeekOffset((o) => o + 1)}
-          disabled={!canGoNext}
-          className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-700 hover:border-stone-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          Semaine suivante →
-        </button>
-      </div>
-
-      <div className="flex flex-col gap-3">
-        {days.map((day, i) => {
-          const dateStr = toDateStr(day);
-          const isToday = dateStr === todayStr;
-          return (
-            <div
-              key={dateStr}
-              className={`rounded-lg border bg-white p-4 ${isToday ? "border-stone-500" : "border-stone-200"}`}
-            >
-              <p className={`text-sm font-semibold mb-3 ${isToday ? "text-stone-900" : "text-stone-500"}`}>
-                {DAY_LABELS[i]}{" "}
-                {day.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
-                {isToday && <span className="ml-2 text-xs font-normal text-stone-400">aujourd&apos;hui</span>}
-              </p>
-              <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-                {MEAL_TYPES.map((mealType) => {
-                  const key = `${dateStr}-${mealType}`;
-                  const slotPlans = getSlotPlans(dateStr, mealType);
-                  const isSaving = savingKey === key;
-                  const addedRecipeIds = slotPlans.map((p) => p.recipe_id);
-                  return (
-                    <div key={mealType} className="flex-1 flex flex-col gap-1.5">
-                      <span className="text-xs text-stone-400">{MEAL_LABELS[mealType]}</span>
-                      {slotPlans.map((plan) => {
-                        const recipe = recipes.find((r) => r.id === plan.recipe_id);
-                        if (!recipe) return null;
-                        return (
-                          <div key={plan.id} className="flex items-center gap-2">
-                            <Link
-                              href={`/recipes/${recipe.id}`}
-                              className="flex-1 truncate text-sm font-medium text-stone-800 hover:underline min-w-0"
-                            >
-                              {recipe.title}
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={() => handleRemove(plan.id)}
-                              className="shrink-0 rounded-md bg-stone-100 px-2 py-1 text-xs font-medium text-stone-600 hover:bg-red-50 hover:text-red-600 transition-colors"
-                            >
-                              Retirer
-                            </button>
-                          </div>
-                        );
-                      })}
-                      <RecipeCombobox
-                        recipes={recipes}
-                        onAdd={(id) => handleAdd(dateStr, mealType, id)}
-                        disabled={isSaving}
-                        excludeIds={addedRecipeIds}
-                      />
-                    </div>
-                  );
-                })}
+      <div className="overflow-x-auto">
+        <div className="grid grid-cols-7 min-w-[900px] border border-stone-200 rounded-lg divide-x divide-stone-200">
+          {days.map((day, i) => {
+            const dateStr = toDateStr(day);
+            const isToday = dateStr === todayStr;
+            return (
+              <div key={dateStr} className="flex flex-col">
+                <div className="flex flex-col items-center gap-1 py-2 border-b border-stone-200">
+                  <span className={`text-xs font-medium ${isToday ? "text-stone-900 font-semibold" : "text-stone-400"}`}>
+                    {DAY_LABELS[i]}
+                  </span>
+                  <span className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium ${isToday ? "bg-stone-900 text-white" : "text-stone-700"}`}>
+                    {day.getDate()}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-3 p-2">
+                  {MEAL_TYPES.map((mealType) => {
+                    const key = `${dateStr}-${mealType}`;
+                    const slotPlans = getSlotPlans(dateStr, mealType);
+                    const isSaving = savingKey === key;
+                    const addedRecipeIds = slotPlans.map((p) => p.recipe_id);
+                    return (
+                      <div key={mealType} className="flex flex-col gap-1.5">
+                        <span className="text-xs text-stone-400">{MEAL_LABELS[mealType]}</span>
+                        {slotPlans.map((plan) => {
+                          const recipe = recipes.find((r) => r.id === plan.recipe_id);
+                          if (!recipe) return null;
+                          return (
+                            <div key={plan.id} className="flex items-center gap-2">
+                              <Link
+                                href={`/recipes/${recipe.id}`}
+                                className="flex-1 truncate text-sm font-medium text-stone-800 hover:underline min-w-0"
+                              >
+                                {recipe.title}
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => handleRemove(plan.id)}
+                                className="shrink-0 rounded-md bg-stone-100 px-2 py-1 text-xs font-medium text-stone-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              >
+                                Retirer
+                              </button>
+                            </div>
+                          );
+                        })}
+                        <RecipeCombobox
+                          recipes={recipes}
+                          onAdd={(id) => handleAdd(dateStr, mealType, id)}
+                          disabled={isSaving}
+                          excludeIds={addedRecipeIds}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
