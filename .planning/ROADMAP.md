@@ -56,7 +56,7 @@ Plans:
   4. User can tap the "+" button on any slot to open a recipe search modal and add a recipe
   5. User can remove a recipe from any slot on mobile
 
-**Plans**: 2 plans
+**Plans**: 1/2 plans executed
 Plans:
 **Wave 1**
 
@@ -64,7 +64,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-02-PLAN.md — Bottom sheet recipe add + human verification checkpoint (MOB-04, SHR-02)
+- [x] 02-02-PLAN.md — Bottom sheet recipe add + human verification checkpoint (MOB-04, SHR-02)
 
 **UI hint**: yes
 
@@ -76,4 +76,4 @@ Phases execute in numeric order: 1 → 2
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation + Desktop Week Grid | 2/2 | Complete    | 2026-09-16 |
-| 2. Mobile Day View + Swipe Navigation | 0/2 | Not started | - |
+| 2. Mobile Day View + Swipe Navigation | 1/2 | In Progress|  |
