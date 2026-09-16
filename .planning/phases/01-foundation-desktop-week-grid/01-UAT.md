@@ -1,18 +1,14 @@
 ---
-status: testing
+status: complete
 phase: 01-foundation-desktop-week-grid
 source: [01-VERIFICATION.md]
 started: 2026-09-16T00:00:00Z
-updated: 2026-09-16T00:00:00Z
+updated: 2026-09-16T12:01:00Z
 ---
 
 ## Current Test
 
-number: 1
-name: 12-Step Smoke Test — layout, today badge, navigation, slots, shopping list
-expected: |
-  All 12 checklist items pass when running npm run dev and visiting /planning
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -34,21 +30,21 @@ Run `npm run dev`, open http://localhost:3000/planning, verify:
 12. **Shopping list (SHR-04):** Button disabled with no meals; with meals opens modal, creates list, navigates to it
 
 expected: All 12 pass
-result: [pending]
+result: pass
 
 ### 2. Timezone Correctness
 
 Confirm the highlighted "today" column matches the user's local system date in the browser (not UTC-shifted).
 
 expected: Correct local date displayed
-result: [pending]
+result: pass
 
 ## Summary
 
 total: 2
-passed: 0
+passed: 2
 issues: 0
-pending: 2
+pending: 0
 skipped: 0
 blocked: 0
 
