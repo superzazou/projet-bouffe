@@ -42,7 +42,7 @@ Ajouter la couche mobile à `PlanningWeek.tsx` — vue jour unique avec mini-bar
 
 ### Modale d'Ajout de Recette
 - **D-07:** Bottom sheet — panel qui remonte depuis le bas de l'écran. Feeling natif iOS/Android. — **Reversibility:** reversible
-- **D-08:** Fermeture du bottom sheet par tap sur le fond sombre OU par bouton "Annuler" / "×" visible dans le sheet. Pas de geste swipe-bas pour fermer (évite conflit avec swipe de navigation). — **Reversibility:** reversible
+- **D-08:** Fermeture du bottom sheet par tap sur le fond sombre OU par bouton "Fermer" / "×" visible dans le sheet. Pas de geste swipe-bas pour fermer (évite conflit avec swipe de navigation). *(label mis à jour : "Annuler" → "Fermer" après revue UI-SPEC 2026-09-16)* — **Reversibility:** reversible
 - **D-09:** Contenu du bottom sheet = `RecipeCombobox` existant réutilisé tel quel. Pas de nouveau composant de recherche. — **Reversibility:** reversible
 
 ### En-Tête Mobile
