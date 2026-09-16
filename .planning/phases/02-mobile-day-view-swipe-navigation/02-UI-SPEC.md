@@ -21,7 +21,7 @@ created: 2026-09-16
 | Tool | none |
 | Preset | not applicable |
 | Component library | none — raw Tailwind utility classes |
-| Icon library | none — text labels used ("+" character, "Retirer", "Annuler") |
+| Icon library | none — text labels used ("+" character, "Retirer", "Fermer") |
 | Font | Geist Sans (var(--font-geist-sans), declared in globals.css) |
 
 **Note (source: CLAUDE.md + CONTEXT.md code_context):** Project constraint is "React + Tailwind uniquement". The existing codebase uses no shadcn or external component library. This phase adds to an already-established stone-* design language. The shadcn gate is skipped; registry safety is not applicable.
@@ -54,7 +54,7 @@ Declared values (multiples of 4):
 | Role | Size | Tailwind class | Weight | Line Height | Usage |
 |------|------|----------------|--------|-------------|-------|
 | Caption | 12px | text-xs | medium (500), font-medium | 1.5 | Slot labels ("Midi", "Soir"), mini-bar pill day abbreviations |
-| Body | 14px | text-sm | medium (500), font-medium | 1.5 | Recipe names, button labels ("Retirer", "Annuler"), bottom sheet content |
+| Body | 14px | text-sm | medium (500), font-medium | 1.5 | Recipe names, button labels ("Retirer", "Fermer"), bottom sheet content |
 | Heading | 18px | text-lg | semibold (600), font-semibold | 1.2 | Day heading ("Mercredi 16 septembre"), bottom sheet title ("Ajouter un repas") |
 
 **Source:** Derived from PlanningWeek.tsx existing patterns (text-xs for day labels, text-sm font-medium for interactive elements, text-base font-semibold for modal headings bumped to text-lg for primary day heading per D-10: "même style que les autres headings de l'app").
@@ -90,14 +90,14 @@ Declared values (multiples of 4):
 | Day heading | "Mercredi 16 septembre" | Format: `toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })`. First letter capitalised. Source: CONTEXT.md D-10. |
 | Slot add button | "+" | Text character only, no label. Touch target 44×44px. |
 | Bottom sheet title | "Ajouter un repas" | Shown as heading inside bottom sheet. |
-| Bottom sheet dismiss button | "Annuler" | Text button at bottom of sheet. Source: CONTEXT.md D-08. |
+| Bottom sheet dismiss button | "Fermer" | Text button at bottom of sheet. Short, unambiguous sheet-close label — distinct from generic "Annuler". Source: CONTEXT.md D-08. |
 | Bottom sheet close × | "×" | Icon character in top-right corner of sheet. Source: CONTEXT.md D-08. |
 | Remove recipe button | "Retirer" | Same as desktop. No confirmation dialog. Direct action. |
 | Shopping list CTA | "Créer une liste de courses" | Preserved from desktop. Positioned at bottom of day view. Source: CONTEXT.md D-12. |
 | Empty slot state | (no text copy) | The "+" button IS the affordance. No empty-state heading or body copy displayed. |
 | Saving state label | (none) | "+" button shows `opacity-50 cursor-not-allowed` during save. No spinner or text. Consistent with existing `savingKey` pattern. |
 | Error state | "Erreur lors de l'ajout du repas" / "Erreur lors de la suppression" | French. Surfaces to existing error boundary. No inline copy needed in this component. |
-| Destructive confirmation | "Retirer" — no confirmation | Immediate action. No dialog. Same as desktop. Source: CONTEXT.md D-08 (no swipe-down, no secondary dismiss gesture required). |
+| Destructive confirmation | "Retirer" — no confirmation | Immediate action. No dialog. Same as desktop. Source: CONTEXT.md D-08. |
 
 ---
 
@@ -137,7 +137,7 @@ Declared values (multiples of 4):
 | Backdrop | `fixed inset-0 z-40 bg-black/40` |
 | Close: backdrop tap | `onClick` on backdrop → close sheet |
 | Close: "×" button | Top-right of sheet header → close sheet |
-| Close: "Annuler" button | Bottom of sheet → close sheet |
+| Close: "Fermer" button | Bottom of sheet → close sheet |
 | Close: swipe-down | NOT implemented — conflicts with day swipe navigation. Source: CONTEXT.md D-08. |
 | Recipe selection | `RecipeCombobox` (`src/components/RecipeCombobox.tsx`) reused as-is. `onAdd` callback: call `handleAdd(date, mealType, recipeId)`, then close sheet. Source: CONTEXT.md D-09. |
 | Slot context | Sheet must receive `{ date, mealType }` to pass correct arguments to `handleAdd`. |
@@ -159,7 +159,7 @@ Declared values (multiples of 4):
 | "+" add button | per slot | `w-11 h-11 rounded-full bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors flex items-center justify-center text-lg font-medium` |
 | Bottom sheet overlay | conditional | `fixed inset-0 z-40 bg-black/40` (backdrop) + `fixed bottom-0 inset-x-0 z-50 bg-white rounded-t-2xl shadow-2xl p-6 max-h-[80vh] flex flex-col gap-4` (sheet) |
 | Bottom sheet header | inside sheet | `flex items-center justify-between`; heading text-lg font-semibold; "×" button `w-11 h-11` |
-| Bottom sheet footer | inside sheet | "Annuler" `rounded-md border border-stone-300 px-4 py-2 text-sm text-stone-700` |
+| Bottom sheet footer | inside sheet | "Fermer" `rounded-md border border-stone-300 px-4 py-2 text-sm text-stone-700` |
 | "Créer une liste de courses" | bottom of mobile day view | Same style as desktop: `rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white`; disabled when no upcoming recipes |
 | Desktop week grid | `hidden md:block` | Existing Phase 1 grid, unchanged |
 
