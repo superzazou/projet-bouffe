@@ -1,7 +1,8 @@
 ---
 phase: 2
 slug: mobile-day-view-swipe-navigation
-status: draft
+status: approved
+reviewed_at: 2026-09-16
 shadcn_initialized: false
 preset: none
 created: 2026-09-16
@@ -95,7 +96,8 @@ Declared values (multiples of 4):
 | Remove recipe button | "Retirer" | Same as desktop. No confirmation dialog. Direct action. |
 | Shopping list CTA | "Créer une liste de courses" | Preserved from desktop. Positioned at bottom of day view. Source: CONTEXT.md D-12. |
 | Empty slot state | (no text copy) | The "+" button IS the affordance. No empty-state heading or body copy displayed. |
-| Saving state label | (none) | "+" button shows `opacity-50 cursor-not-allowed` during save. No spinner or text. Consistent with existing `savingKey` pattern. |
+| Saving state label — add | (none) | "+" button shows `opacity-50 cursor-not-allowed` during save. No spinner or text. Consistent with existing `savingKey` pattern. |
+| Saving state label — delete | (none) | "Retirer" button shows `opacity-50 cursor-not-allowed` while delete server action is in-flight. Same savingKey pattern applied to deletingKey. Prevents double-tap. |
 | Error state | "Erreur lors de l'ajout du repas" / "Erreur lors de la suppression" | French. Surfaces to existing error boundary. No inline copy needed in this component. |
 | Destructive confirmation | "Retirer" — no confirmation | Immediate action. No dialog. Same as desktop. Source: CONTEXT.md D-08. |
 
@@ -167,18 +169,36 @@ Declared values (multiples of 4):
 
 ## UI Considerations
 
-Applicable state considerations resolved: 7 covered, 1 backstop, 0 unresolved
+Probe-resolved: 16 covered, 2 backstop, 0 unresolved, 8 dismissed (not applicable)
 
-| Category | Element(s) | Status | Resolution / Reason |
-|----------|------------|--------|---------------------|
-| empty | Slot recipe list (list-collection) | ✅ covered | Empty slot renders "+" button only. No copy text displayed — the button IS the affordance. Contract: `slotPlans.length === 0` renders only the "+" button below the slot label. |
-| loading | Slot recipe list during save (list-collection) | ✅ covered | `savingKey === key` disables "+" button with `opacity-50 cursor-not-allowed`. Pre-existing `savingKey` pattern reused unchanged. |
-| error | Server action failure (nav/form) | ✅ covered | Errors throw and bubble to the existing `src/app/(app)/error.tsx` boundary. No inline copy needed in mobile component. French error messages per app convention. |
-| populated | Slot recipe list (list-collection) | ✅ covered | Each planned recipe renders as a row: recipe name (truncated) + "Retirer" button. Multiple recipes stack vertically in the slot. |
-| overflow | Recipe name in slot row (static-content) | ✅ covered | `flex-1 truncate` on recipe name element clips overflow with ellipsis. Pre-existing pattern from desktop. |
-| overflow | Bottom sheet content (list-collection) | ✅ covered | `max-h-[80vh] overflow-y-auto` on sheet container prevents viewport overflow when RecipeCombobox shows many results. |
-| zero-one-many | Slot recipe rows (list-collection) | ✅ covered | 0 recipes → "+" button only. 1 recipe → single row + "+" button. Multiple recipes → stacked rows + "+" button. Layout stable at all counts. |
-| long-text | Day heading (static-content) | 🧪 backstop | "Mercredi 16 septembre" is typically ~25 chars. `text-lg font-semibold` in a full-width container should not overflow. Wrap with `break-words` as safety. Requires visual spot-check at implementation time. |
+| Category | Element | Status | Resolution |
+|----------|---------|--------|------------|
+| empty | E1 Slot recipe list | ✅ covered | Empty slot renders only the '+' add button (`w-11 h-11 rounded-full bg-stone-100`) when `slotPlans.length === 0`. No copy text — the button is the affordance. |
+| loading | E1 Slot recipe list (add) | ✅ covered | During save (`savingKey === key`), the '+' button shows `opacity-50 cursor-not-allowed`. No spinner or text. Pre-existing savingKey pattern. |
+| error | E1 Slot recipe list | ✅ covered | Server action failures (add/delete) bubble to `src/app/(app)/error.tsx`. French error messages. No inline mobile component copy needed. |
+| populated | E1 Slot recipe list | ✅ covered | Populated slot renders recipe name rows (`text-sm font-medium text-stone-800 flex-1 truncate`) each with a 'Retirer' button (`min-h-[44px]`), followed by '+' button. Rows stack vertically with `gap-2`. |
+| partial | E1 Slot recipe list | ❌ dismissed | Not applicable — a meal slot shows all planned recipes. No partial-data concept. |
+| overflow | E1 Slot recipe list | ✅ covered | Recipe names use `flex-1 truncate` (CSS `overflow: hidden; text-overflow: ellipsis; white-space: nowrap`). Day content area scrollable if many recipes. |
+| zero-one-many | E1 Slot recipe list | ✅ covered | 0 recipes: '+' only. 1 recipe: single row + '+'. Many: stacked rows + '+'. Layout stable at all counts. |
+| long-text | E1 Slot recipe list | ✅ covered | Long recipe names clipped with `flex-1 truncate`. |
+| loading | E2 Mini-bar week strip | ❌ dismissed | Renders from local React state (currentMonday + weekOffset), no async call. Always renders immediately. |
+| error | E2 Mini-bar week strip | ❌ dismissed | Local state only — no server calls, no error state applicable. |
+| overflow | E2 Mini-bar week strip | ✅ covered | `grid grid-cols-7` full-width. Each pill gets `100% / 7`. 3-char fr-FR abbreviations (Lun/Mar/Mer/…) always fit without overflow. |
+| long-text | E2 Mini-bar week strip | ❌ dismissed | Day abbreviations are always exactly 3 chars in fr-FR locale. No variable-length text. |
+| overflow | E3 Day heading | 🧪 backstop | { "statement": "Day heading 'Mercredi 16 septembre' (~25 chars) in `text-lg font-semibold` full-width container must not overflow. Apply `break-words` as safety wrap.", "verification": "backstop" } |
+| long-text | E3 Day heading | 🧪 backstop | { "statement": "Longest fr-FR date strings (~28 chars, e.g. 'Dimanche 30 septembre') must not overflow the day heading container. Visual spot-check required at implementation.", "verification": "backstop" } |
+| long-text | E4 Bottom sheet | ✅ covered | Sheet uses `max-h-[80vh] overflow-y-auto`. RecipeCombobox recipe names handled by `flex-1 truncate` pattern inside the combobox component. |
+| empty | E5 Recipe row | ❌ dismissed | Not applicable — a recipe row only exists when a recipe is planned. No empty row state. |
+| loading | E5 Recipe row (delete) | ✅ covered | During delete, 'Retirer' button shows `opacity-50 cursor-not-allowed` while server action is in-flight (deletingKey pattern, mirrors savingKey). Prevents double-tap. |
+| error | E5 Recipe row | ✅ covered | Delete failures bubble to `src/app/(app)/error.tsx`. French: 'Erreur lors de la suppression'. |
+| populated | E5 Recipe row | ✅ covered | Row renders: recipe name (`text-sm font-medium text-stone-800 flex-1 truncate min-w-0`) + 'Retirer' button (`min-h-[44px] text-sm text-stone-500`). |
+| partial | E5 Recipe row | ❌ dismissed | Not applicable — a recipe row is either fully rendered or does not exist. |
+| overflow | E5 Recipe row | ✅ covered | Recipe name uses `flex-1 truncate min-w-0` for ellipsis. 'Retirer' takes fixed width. Row stable at any name length. |
+| zero-one-many | E5 Recipe row | ❌ dismissed | Not applicable to a single list item — collection-level zero/one/many belongs to E1. |
+| long-text | E5 Recipe row | ✅ covered | Long names clipped with `flex-1 truncate` (same as overflow). |
+| long-text | E6 '+' add button | ❌ dismissed | '+' is a single glyph, not a variable-length label. Long-text not applicable. |
+| overflow | E7 CTA button | ✅ covered | 'Créer une liste de courses' is a fixed 29-char string. `px-4 py-2 rounded-md block` fits at all mobile breakpoints. |
+| long-text | E7 CTA button | ✅ covered | Fixed translation string. Intentional full-width display. No overflow at mobile breakpoints. |
 
 ---
 
@@ -193,11 +213,11 @@ Applicable state considerations resolved: 7 covered, 1 backstop, 0 unresolved
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: FLAG (non-blocking — error recovery path delegates to error.tsx)
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved (2026-09-16)
