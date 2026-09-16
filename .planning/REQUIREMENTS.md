@@ -7,14 +7,14 @@
 
 ### Foundation (technique)
 
-- [ ] **FND-01**: La logique de parsing des dates ne produit pas de décalage de jour selon le fuseau horaire de l'utilisateur (corriger `getMondayOf`/`toDateStr` — bug UTC existant)
+- [x] **FND-01**: La logique de parsing des dates ne produit pas de décalage de jour selon le fuseau horaire de l'utilisateur (corriger `getMondayOf`/`toDateStr` — bug UTC existant)
 
 ### Desktop Layout
 
-- [ ] **DSK-01**: L'utilisateur voit les 7 jours de la semaine en colonnes horizontales côte à côte (remplace la liste verticale)
-- [ ] **DSK-02**: La colonne du jour courant est visuellement distinguée des autres jours
-- [ ] **DSK-03**: L'utilisateur peut naviguer vers la semaine précédente ou suivante via des flèches, aujourd'hui étant le point de départ
-- [ ] **DSK-04**: Chaque colonne affiche le jour abrégé et la date
+- [x] **DSK-01**: L'utilisateur voit les 7 jours de la semaine en colonnes horizontales côte à côte (remplace la liste verticale)
+- [x] **DSK-02**: La colonne du jour courant est visuellement distinguée des autres jours
+- [x] **DSK-03**: L'utilisateur peut naviguer vers la semaine précédente ou suivante via des flèches, aujourd'hui étant le point de départ
+- [x] **DSK-04**: Chaque colonne affiche le jour abrégé et la date
 
 ### Mobile Layout
 
@@ -25,10 +25,10 @@
 
 ### Shared — Fonctionnalités préservées
 
-- [ ] **SHR-01**: Chaque jour affiche deux slots (Midi / Soir) sur les deux vues
-- [ ] **SHR-02**: L'utilisateur peut ajouter une recette à n'importe quel slot (combobox inline sur desktop, modale sur mobile)
-- [ ] **SHR-03**: L'utilisateur peut retirer une recette d'un slot sur les deux vues
-- [ ] **SHR-04**: Le bouton "Créer une liste de courses" reste accessible et fonctionnel
+- [x] **SHR-01**: Chaque jour affiche deux slots (Midi / Soir) sur les deux vues
+- [x] **SHR-02**: L'utilisateur peut ajouter une recette à n'importe quel slot (combobox inline sur desktop, modale sur mobile)
+- [x] **SHR-03**: L'utilisateur peut retirer une recette d'un slot sur les deux vues
+- [x] **SHR-04**: Le bouton "Créer une liste de courses" reste accessible et fonctionnel
 
 ## v2 Requirements
 
@@ -52,15 +52,15 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FND-01 | Phase 1 | Pending |
-| DSK-01 | Phase 1 | Pending |
-| DSK-02 | Phase 1 | Pending |
-| DSK-03 | Phase 1 | Pending |
-| DSK-04 | Phase 1 | Pending |
-| SHR-01 | Phase 1 | Pending |
+| FND-01 | Phase 1 | Complete |
+| DSK-01 | Phase 1 | Complete |
+| DSK-02 | Phase 1 | Complete |
+| DSK-03 | Phase 1 | Complete |
+| DSK-04 | Phase 1 | Complete |
+| SHR-01 | Phase 1 | Complete |
 | SHR-02 (desktop) | Phase 1 | Pending |
 | SHR-03 (desktop) | Phase 1 | Pending |
-| SHR-04 | Phase 1 | Pending |
+| SHR-04 | Phase 1 | Complete |
 | MOB-01 | Phase 2 | Pending |
 | MOB-02 | Phase 2 | Pending |
 | MOB-03 | Phase 2 | Pending |
@@ -69,6 +69,7 @@
 | SHR-03 (mobile) | Phase 2 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 13 total
 - Mapped to phases: 13
 - Unmapped: 0 ✓

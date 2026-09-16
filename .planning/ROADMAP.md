@@ -11,7 +11,7 @@ Remplacement de la vue planning verticale par une expérience calquée sur Googl
 - Integer phases (1, 2): Planned milestone work
 - Decimal phases (1.1, 1.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Foundation + Desktop Week Grid** - Corriger le bug timezone et livrer la vue semaine horizontale desktop complète
+- [x] **Phase 1: Foundation + Desktop Week Grid** - Corriger le bug timezone et livrer la vue semaine horizontale desktop complète (completed 2026-09-16)
 - [ ] **Phase 2: Mobile Day View + Swipe Navigation** - Ajouter la vue mobile jour unique avec mini-barre et navigation tactile
 
 ## Phase Details
@@ -38,7 +38,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Replace vertical layout with 7-column horizontal grid, add today badge, merge nav row (DSK-01–04, SHR-01–04)
+- [x] 01-02-PLAN.md — Replace vertical layout with 7-column horizontal grid, add today badge, merge nav row (DSK-01–04, SHR-01–04)
 
 **UI hint**: yes
 
@@ -66,5 +66,5 @@ Phases execute in numeric order: 1 → 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Desktop Week Grid | 1/2 | In Progress|  |
+| 1. Foundation + Desktop Week Grid | 2/2 | Complete    | 2026-09-16 |
 | 2. Mobile Day View + Swipe Navigation | 0/? | Not started | - |
