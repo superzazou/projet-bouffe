@@ -379,7 +379,7 @@ export default function PlanningWeek({ initialMealPlans, recipes, today: _today 
       </div>
 
       {/* Desktop layout — visible at md+ breakpoint */}
-      <div className="hidden md:block flex flex-col gap-6">
+      <div className="hidden md:flex flex-col gap-4">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <button
             onClick={openListModal}
@@ -409,66 +409,64 @@ export default function PlanningWeek({ initialMealPlans, recipes, today: _today 
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <div className="grid grid-cols-7 min-w-[900px] border border-stone-200 rounded-lg divide-x divide-stone-200">
-            {days.map((day, i) => {
-              const dateStr = toDateStr(day);
-              const isToday = dateStr === todayStr;
-              return (
-                <div key={dateStr} className="flex flex-col">
-                  <div className="flex flex-col items-center gap-1 py-2 border-b border-stone-200">
-                    <span className={`text-xs font-medium ${isToday ? "text-stone-900 font-semibold" : "text-stone-400"}`}>
-                      {DAY_LABELS[i]}
-                    </span>
-                    <span className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium ${isToday ? "bg-stone-900 text-white" : "text-stone-700"}`}>
-                      {day.getDate()}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-3 p-2">
-                    {MEAL_TYPES.map((mealType) => {
-                      const key = `${dateStr}-${mealType}`;
-                      const slotPlans = getSlotPlans(dateStr, mealType);
-                      const isSaving = savingKey === key;
-                      const addedRecipeIds = slotPlans.map((p) => p.recipe_id);
-                      return (
-                        <div key={mealType} className="flex flex-col gap-1.5">
-                          <span className="text-xs text-stone-400">{MEAL_LABELS[mealType]}</span>
-                          {slotPlans.map((plan) => {
-                            const recipe = recipes.find((r) => r.id === plan.recipe_id);
-                            if (!recipe) return null;
-                            return (
-                              <div key={plan.id} className="flex items-center gap-2">
-                                <Link
-                                  href={`/recipes/${recipe.id}`}
-                                  className="flex-1 truncate text-sm font-medium text-stone-800 hover:underline min-w-0"
-                                >
-                                  {recipe.title}
-                                </Link>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemove(plan.id)}
-                                  disabled={deletingKey === plan.id}
-                                  className="shrink-0 rounded-md bg-stone-100 px-2 py-1 text-xs font-medium text-stone-600 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                >
-                                  Retirer
-                                </button>
-                              </div>
-                            );
-                          })}
-                          <RecipeCombobox
-                            recipes={recipes}
-                            onAdd={(id) => handleAdd(dateStr, mealType, id)}
-                            disabled={isSaving}
-                            excludeIds={addedRecipeIds}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
+        <div className="grid grid-cols-7 w-full border border-stone-200 rounded-lg divide-x divide-stone-200">
+          {days.map((day, i) => {
+            const dateStr = toDateStr(day);
+            const isToday = dateStr === todayStr;
+            return (
+              <div key={dateStr} className="flex flex-col min-h-[calc(100vh-200px)]">
+                <div className="flex flex-col items-center gap-1 py-3 border-b border-stone-200 shrink-0">
+                  <span className={`text-xs font-medium ${isToday ? "text-stone-900 font-semibold" : "text-stone-400"}`}>
+                    {DAY_LABELS[i]}
+                  </span>
+                  <span className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium ${isToday ? "bg-stone-900 text-white" : "text-stone-700"}`}>
+                    {day.getDate()}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
+                <div className="flex flex-col flex-1 divide-y divide-stone-100">
+                  {MEAL_TYPES.map((mealType) => {
+                    const key = `${dateStr}-${mealType}`;
+                    const slotPlans = getSlotPlans(dateStr, mealType);
+                    const isSaving = savingKey === key;
+                    const addedRecipeIds = slotPlans.map((p) => p.recipe_id);
+                    return (
+                      <div key={mealType} className="flex flex-col gap-2 p-3 flex-1">
+                        <span className="text-xs font-medium text-stone-400 uppercase tracking-wide">{MEAL_LABELS[mealType]}</span>
+                        {slotPlans.map((plan) => {
+                          const recipe = recipes.find((r) => r.id === plan.recipe_id);
+                          if (!recipe) return null;
+                          return (
+                            <div key={plan.id} className="flex items-start gap-2">
+                              <Link
+                                href={`/recipes/${recipe.id}`}
+                                className="flex-1 text-sm font-medium text-stone-800 hover:underline min-w-0 leading-snug"
+                              >
+                                {recipe.title}
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => handleRemove(plan.id)}
+                                disabled={deletingKey === plan.id}
+                                className="shrink-0 rounded-md bg-stone-100 px-2 py-1 text-xs font-medium text-stone-600 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              >
+                                Retirer
+                              </button>
+                            </div>
+                          );
+                        })}
+                        <RecipeCombobox
+                          recipes={recipes}
+                          onAdd={(id) => handleAdd(dateStr, mealType, id)}
+                          disabled={isSaving}
+                          excludeIds={addedRecipeIds}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

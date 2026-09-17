@@ -23,8 +23,8 @@ export default async function PlanningPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <h2 className="text-xl font-semibold mb-6">Planning des repas</h2>
+    <div className="px-4 py-8 md:px-6 md:py-5">
+      <h2 className="text-xl font-semibold mb-4 md:mb-5">Planning des repas</h2>
       <PlanningWeek
         initialMealPlans={mealPlans ?? []}
         recipes={recipes ?? []}
