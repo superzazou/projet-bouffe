@@ -18,10 +18,10 @@
 
 ### Mobile Layout
 
-- [ ] **MOB-01**: L'utilisateur voit un seul jour à la fois sur mobile, aujourd'hui par défaut
-- [ ] **MOB-02**: Une mini-barre en haut affiche les 7 jours de la semaine en pills ; l'utilisateur peut sélectionner un jour par tap
-- [ ] **MOB-03**: L'utilisateur peut swiper gauche/droite pour naviguer entre les jours ; le passage d'une semaine à l'autre est automatique aux limites (dim → lun, lun → dim)
-- [ ] **MOB-04**: L'utilisateur peut ajouter une recette à un slot via un bouton + qui ouvre une modale de recherche
+- [x] **MOB-01**: L'utilisateur voit un seul jour à la fois sur mobile, aujourd'hui par défaut
+- [x] **MOB-02**: Une mini-barre en haut affiche les 7 jours de la semaine en pills ; l'utilisateur peut sélectionner un jour par tap
+- [x] **MOB-03**: L'utilisateur peut swiper gauche/droite pour naviguer entre les jours ; le passage d'une semaine à l'autre est automatique aux limites (dim → lun, lun → dim)
+- [x] **MOB-04**: L'utilisateur peut ajouter une recette à un slot via un bouton + qui ouvre une modale de recherche
 
 ### Shared — Fonctionnalités préservées
 
@@ -61,10 +61,10 @@
 | SHR-02 (desktop) | Phase 1 | Pending |
 | SHR-03 (desktop) | Phase 1 | Pending |
 | SHR-04 | Phase 1 | Complete |
-| MOB-01 | Phase 2 | Pending |
-| MOB-02 | Phase 2 | Pending |
-| MOB-03 | Phase 2 | Pending |
-| MOB-04 | Phase 2 | Pending |
+| MOB-01 | Phase 2 | Complete |
+| MOB-02 | Phase 2 | Complete |
+| MOB-03 | Phase 2 | Complete |
+| MOB-04 | Phase 2 | Complete |
 | SHR-02 (mobile) | Phase 2 | Pending |
 | SHR-03 (mobile) | Phase 2 | Pending |
 

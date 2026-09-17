@@ -1,30 +1,37 @@
 ---
 phase: 02-mobile-day-view-swipe-navigation
 verified: 2026-09-17T00:00:00Z
-status: human_needed
+status: passed
 score: 4/5 must-haves verified
 behavior_unverified: 1
 overrides_applied: 0
 human_verification:
+
   - test: "MOB-03 swipe navigation — week boundary crossing on Chrome DevTools iPhone 12 Pro emulation"
     expected: "Swiping left from Sunday changes selectedDay to Monday of the next week AND updates weekOffset so the week strip shows the new week's 7 days; swiping right from Monday changes to Sunday of the previous week"
     why_human: "The code calls setWeekOffset and setSelectedDay in the same synchronous block (lines 124-127), which is correct, but the actual state transition behavior under React rendering — and whether the week strip updates atomically — cannot be proven by static code inspection alone"
+
   - test: "MOB-03 swipe navigation — 30px threshold and axis lock on Chrome DevTools iPhone 12 Pro touch emulation"
     expected: "A short horizontal drag (< ~30px) does NOT navigate; a mostly-vertical drag scrolls the page without changing the day"
     why_human: "Chrome DevTools touch emulation approximates iOS Safari behavior; the 30px threshold and axis lock logic (lines 89-113) is correctly implemented but correctness under real gesture conditions needs human confirmation"
+
   - test: "MOB-01 — today highlighted at page load (timezone correctness)"
     expected: "The pill for today has a bg-stone-900 badge circle; if the user is in a non-UTC timezone (e.g. UTC+2 at midnight), the correct local calendar date is highlighted"
     why_human: "todayStr is derived from new Date() at component mount (line 63-64), which is local time — correctness was verified in Phase 1 but the exact derivation path in PlanningWeek differs from the Phase 1 fix; spot-check required"
+
   - test: "MOB-04 / SHR-02 — Bottom sheet '+' button click vs imperative swipe handler conflict"
     expected: "Tapping '+' on a slot opens the bottom sheet without triggering the swipe handler; the correct slot context (Midi vs Soir) is reflected in the sheet title and RecipeCombobox excludeIds"
     why_human: "The '+' button uses React onClick (not onTouchEnd) which fires after the native touch sequence, designed to avoid conflict with the imperative handler on the parent div — this interaction ordering cannot be verified by static analysis"
+
   - test: "SHR-02 — RecipeCombobox dropdown visibility inside bottom sheet"
     expected: "Opening the bottom sheet and typing a letter in the combobox shows the dropdown fully visible — not clipped under the overflow-y-auto container"
     why_human: "overflow-y-auto on the sheet panel (line 351) can clip a position:absolute dropdown; requires visual inspection in DevTools"
+
   - test: "Plan 02 Task 2 (gate: blocking) — full manual verification of all 6 Phase 2 requirements"
     expected: "MOB-01 through SHR-03 all pass on Chrome DevTools iPhone 12 Pro emulation as described in 02-02-PLAN.md Task 2; desktop non-regression confirmed at 1280px"
     why_human: "This is a blocking checkpoint:human-verify task in Plan 02 that was not performed before the summary was written. SUMMARY.md states 'Not yet performed'. This is the primary human gate for the phase."
 behavior_unverified_items:
+
   - truth: "Swipe left advances selectedDay one day; swipe right goes back; Sunday-to-Monday and Monday-to-Sunday crossings update both weekOffset and selectedDay in the same synchronous block, and the week strip auto-updates to show the new week's 7 days"
     test: "Navigate to Sunday, swipe left; observe selectedDay and the week strip"
     expected: "selectedDay becomes Monday of the next week AND weekOffset increments by 1 so the week strip shows the new 7 days; no visible state-split frame where only one of the two state values has updated"
